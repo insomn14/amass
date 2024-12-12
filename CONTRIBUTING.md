@@ -1,6 +1,6 @@
 # Contributing
 
-Thank you for considering making contributions to Amass! Start by taking a look at the [open issues](https://github.com/owasp-amass/amass/issues) for things we need help with!
+Thank you for considering making contributions to Amass! Start by taking a look at the [open issues](https://github.com/insomn14/amass/issues) for things we need help with!
 
 Please follow standard github best practices: fork the repo, branch from the tip of develop, make some commits, and submit a pull request to develop. 
 
@@ -12,12 +12,12 @@ Please note that Go requires code to live under absolute paths, which complicate
 While the fork for user 'foo' lives at `https://github.com/foo/amass`,
 the code should never exist at  `$GOPATH/src/github.com/foo/amass`.
 Instead, we use `git remote` to add the fork as a new remote for the original repo,
-`$GOPATH/src/github.com/owasp-amass/amass`, and do all the work there.
+`$GOPATH/src/github.com/insomn14/amass`, and do all the work there.
 
 For instance, to create a fork and work on a branch of it, user 'foo' would:
 
   * Create the fork on github, using the fork button.
-  * Go to the original repo checked out locally (ie. `$GOPATH/src/github.com/owasp-amass/amass`)
+  * Go to the original repo checked out locally (ie. `$GOPATH/src/github.com/insomn14/amass`)
   * `git remote rename origin upstream`
   * `git remote add origin git@github.com:foo/amass.git`
 

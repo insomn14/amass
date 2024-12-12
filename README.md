@@ -1,19 +1,19 @@
 # [![OWASP Logo](./images/owasp_logo.png) OWASP Amass](https://owasp.org/www-project-amass/)
 
 <p align="center">
-  <img src="https://github.com/owasp-amass/amass/blob/master/images/amass_video.gif">
+  <img src="https://github.com/insomn14/amass/blob/master/images/amass_video.gif">
 </p>
 
 [![OWASP Flagship](https://img.shields.io/badge/owasp-flagship%20project-48A646.svg)](https://owasp.org/projects/#sec-flagships)
-[![GitHub Release](https://img.shields.io/github/release/owasp-amass/amass)](https://github.com/owasp-amass/amass/releases/latest)
+[![GitHub Release](https://img.shields.io/github/release/owasp-amass/amass)](https://github.com/insomn14/amass/releases/latest)
 [![Docker Images](https://img.shields.io/docker/pulls/caffix/amass.svg)](https://hub.docker.com/r/caffix/amass)
 [![Follow on Twitter](https://img.shields.io/twitter/follow/owaspamass.svg?logo=twitter)](https://twitter.com/owaspamass)
 [![Chat on Discord](https://img.shields.io/discord/433729817918308352.svg?logo=discord)](https://discord.gg/HNePVyX3cp)
 
-![GitHub Test Status](https://github.com/owasp-amass/amass/workflows/tests/badge.svg)
-[![GoDoc](https://pkg.go.dev/badge/github.com/owasp-amass/amass/v4?utm_source=godoc)](https://pkg.go.dev/github.com/owasp-amass/amass/v4)
+![GitHub Test Status](https://github.com/insomn14/amass/workflows/tests/badge.svg)
+[![GoDoc](https://pkg.go.dev/badge/github.com/insomn14/amass/v4?utm_source=godoc)](https://pkg.go.dev/github.com/insomn14/amass/v4)
 [![License](https://img.shields.io/badge/license-apache%202-blue)](https://www.apache.org/licenses/LICENSE-2.0)
-[![Go Report](https://goreportcard.com/badge/github.com/owasp-amass/amass)](https://goreportcard.com/report/github.com/owasp-amass/amass)
+[![Go Report](https://goreportcard.com/badge/github.com/insomn14/amass)](https://goreportcard.com/report/github.com/insomn14/amass)
 [![CodeFactor](https://www.codefactor.io/repository/github/owasp-amass/amass/badge)](https://www.codefactor.io/repository/github/owasp-amass/amass)
 [![Maintainability](https://api.codeclimate.com/v1/badges/234e4885e406953f91d0/maintainability)](https://codeclimate.com/github/owasp-amass/amass/maintainability)
 [![codecov](https://codecov.io/gh/owasp-amass/amass/branch/master/graph/badge.svg?token=zoPKxvLT1n)](https://codecov.io/gh/owasp-amass/amass)
@@ -34,13 +34,13 @@ The OWASP Amass Project performs network mapping of attack surfaces and external
 
 ----
 
-## Installation [![Go Version](https://img.shields.io/github/go-mod/go-version/owasp-amass/amass)](https://golang.org/dl/) [![Docker Images](https://img.shields.io/docker/pulls/caffix/amass.svg)](https://hub.docker.com/r/caffix/amass) [![GitHub Downloads](https://img.shields.io/github/downloads/owasp-amass/amass/latest/total.svg)](https://github.com/owasp-amass/amass/releases/latest)
+## Installation [![Go Version](https://img.shields.io/github/go-mod/go-version/owasp-amass/amass)](https://golang.org/dl/) [![Docker Images](https://img.shields.io/docker/pulls/caffix/amass.svg)](https://hub.docker.com/r/caffix/amass) [![GitHub Downloads](https://img.shields.io/github/downloads/owasp-amass/amass/latest/total.svg)](https://github.com/insomn14/amass/releases/latest)
 
 > You can find some additional installation variations in the [Installation Guide](./doc/install.md).
 
 ### Prebuilt Packages
 
-1. Simply unzip the [package](https://github.com/owasp-amass/amass/releases/latest)
+1. Simply unzip the [package](https://github.com/insomn14/amass/releases/latest)
 2. Put the precompiled binary into your path
 3. Start using OWASP Amass!
 
@@ -62,10 +62,10 @@ The volume argument allows the Amass graph database to persist between execution
 ### From Source
 
 1. Install [Go](https://golang.org/doc/install) and setup your Go workspace
-2. Download OWASP Amass by running `go install -v github.com/owasp-amass/amass/v4/...@master`
+2. Download OWASP Amass by running `go install -v github.com/insomn14/amass/v4/...@master`
 3. At this point, the binary should be in `$GOPATH/bin`
 
-## Documentation [![GoDoc](https://pkg.go.dev/badge/github.com/owasp-amass/amass/v4?utm_source=godoc)](https://pkg.go.dev/github.com/owasp-amass/amass/v4)
+## Documentation [![GoDoc](https://pkg.go.dev/badge/github.com/insomn14/amass/v4?utm_source=godoc)](https://pkg.go.dev/github.com/insomn14/amass/v4)
 
 Use the [Installation Guide](./doc/install.md) to get started.
 

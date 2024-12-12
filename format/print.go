@@ -12,8 +12,8 @@ import (
 	"strings"
 
 	"github.com/fatih/color"
-	amassnet "github.com/owasp-amass/amass/v4/net"
-	"github.com/owasp-amass/amass/v4/requests"
+	amassnet "github.com/insomn14/amass/v4/net"
+	"github.com/insomn14/amass/v4/requests"
 )
 
 // Banner is the ASCII art logo used within help output.
@@ -93,7 +93,7 @@ func FprintEnumerationSummary(out io.Writer, total int, asns map[int]*ASNSummary
 	fmt.Fprintln(out)
 	// Print the header information
 	title := "OWASP Amass "
-	site := "https://github.com/owasp-amass/amass"
+	site := "https://github.com/insomn14/amass"
 	b.Fprint(out, title+Version)
 	num := 80 - (len(title) + len(Version) + len(site))
 	pad(num, " ")

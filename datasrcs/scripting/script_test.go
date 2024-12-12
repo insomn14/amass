@@ -7,10 +7,10 @@ package scripting
 import (
 	"github.com/caffix/netmap"
 	"github.com/caffix/service"
-	"github.com/owasp-amass/amass/v4/requests"
-	"github.com/owasp-amass/amass/v4/systems"
-	"github.com/owasp-amass/config/config"
-	"github.com/owasp-amass/resolve"
+	"github.com/insomn14/amass/v4/requests"
+	"github.com/insomn14/amass/v4/systems"
+	"github.com/insomn14/config/config"
+	"github.com/insomn14/resolve"
 )
 
 func setupMockScriptEnv(script string) (service.Service, systems.System) {

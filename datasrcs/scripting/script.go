@@ -13,10 +13,10 @@ import (
 
 	"github.com/caffix/service"
 	luaurl "github.com/cjoudrey/gluaurl"
-	"github.com/owasp-amass/amass/v4/net/dns"
-	"github.com/owasp-amass/amass/v4/requests"
-	"github.com/owasp-amass/amass/v4/systems"
-	"github.com/owasp-amass/config/config"
+	"github.com/insomn14/amass/v4/net/dns"
+	"github.com/insomn14/amass/v4/requests"
+	"github.com/insomn14/amass/v4/systems"
+	"github.com/insomn14/config/config"
 	lua "github.com/yuin/gopher-lua"
 	luajson "layeh.com/gopher-json"
 )

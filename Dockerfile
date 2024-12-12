@@ -1,6 +1,6 @@
 FROM golang:1.19-alpine as build
 RUN apk --no-cache add git
-WORKDIR /go/src/github.com/owasp-amass/amass
+WORKDIR /go/src/github.com/insomn14/amass
 COPY . .
 RUN go install -v ./...
 

@@ -17,11 +17,11 @@ import (
 
 	"github.com/caffix/netmap"
 	"github.com/caffix/service"
-	amassnet "github.com/owasp-amass/amass/v4/net"
-	"github.com/owasp-amass/amass/v4/requests"
-	"github.com/owasp-amass/amass/v4/resources"
-	"github.com/owasp-amass/config/config"
-	"github.com/owasp-amass/resolve"
+	amassnet "github.com/insomn14/amass/v4/net"
+	"github.com/insomn14/amass/v4/requests"
+	"github.com/insomn14/amass/v4/resources"
+	"github.com/insomn14/config/config"
+	"github.com/insomn14/resolve"
 )
 
 // LocalSystem implements a System to be executed within a single process.

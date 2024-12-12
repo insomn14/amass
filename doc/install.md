@@ -5,7 +5,7 @@
 
 ## Prebuilt Binaries
 
-A [precompiled version is available](https://github.com/owasp-amass/amass/releases) with each release.
+A [precompiled version is available](https://github.com/insomn14/amass/releases) with each release.
 
 Using this installation option on macOS is could result in an 'unidentified developer' warning. This can be resolved by following the steps below:
 
@@ -20,7 +20,7 @@ Using this installation option on macOS is could result in an 'unidentified deve
 1. Build the [Docker](https://docs.docker.com/) image:
 
 ```bash
-docker build -t amass https://github.com/owasp-amass/amass.git
+docker build -t amass https://github.com/insomn14/amass.git
 ```
 
 2. Run the Docker image:
@@ -44,7 +44,7 @@ If you prefer to build your own binary from the latest release of the source cod
 Simply execute the following command:
 
 ```bash
-go install -v github.com/owasp-amass/amass/v4/...@master
+go install -v github.com/insomn14/amass/v4/...@master
 ```
 
 At this point, the binary should be in *$GOPATH/bin*.

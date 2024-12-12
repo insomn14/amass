@@ -13,12 +13,12 @@ import (
 
 	"github.com/caffix/netmap"
 	"github.com/caffix/stringset"
-	"github.com/owasp-amass/amass/v4/enum"
-	"github.com/owasp-amass/amass/v4/requests"
-	"github.com/owasp-amass/asset-db/types"
-	oam "github.com/owasp-amass/open-asset-model"
-	"github.com/owasp-amass/open-asset-model/domain"
-	"github.com/owasp-amass/open-asset-model/network"
+	"github.com/insomn14/amass/v4/enum"
+	"github.com/insomn14/amass/v4/requests"
+	"github.com/insomn14/asset-db/types"
+	oam "github.com/insomn14/open-asset-model"
+	"github.com/insomn14/open-asset-model/domain"
+	"github.com/insomn14/open-asset-model/network"
 	"golang.org/x/net/publicsuffix"
 )
 

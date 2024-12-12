@@ -25,12 +25,12 @@ import (
 	"github.com/caffix/netmap"
 	"github.com/caffix/stringset"
 	"github.com/fatih/color"
-	"github.com/owasp-amass/amass/v4/datasrcs"
-	"github.com/owasp-amass/amass/v4/enum"
-	"github.com/owasp-amass/amass/v4/format"
-	"github.com/owasp-amass/amass/v4/resources"
-	"github.com/owasp-amass/amass/v4/systems"
-	"github.com/owasp-amass/config/config"
+	"github.com/insomn14/amass/v4/datasrcs"
+	"github.com/insomn14/amass/v4/enum"
+	"github.com/insomn14/amass/v4/format"
+	"github.com/insomn14/amass/v4/resources"
+	"github.com/insomn14/amass/v4/systems"
+	"github.com/insomn14/config/config"
 )
 
 const enumUsageMsg = "enum [options] -d DOMAIN"

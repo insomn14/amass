@@ -11,7 +11,7 @@ import (
 
 	"github.com/caffix/pipeline"
 	"github.com/miekg/dns"
-	amassdns "github.com/owasp-amass/amass/v4/net/dns"
+	amassdns "github.com/insomn14/amass/v4/net/dns"
 )
 
 // Request Pub/Sub topics used across Amass.
@@ -248,6 +248,8 @@ type Output struct {
 	Name      string        `json:"name"`
 	Domain    string        `json:"domain"`
 	Addresses []AddressInfo `json:"addresses"`
+	Tag       string        `json:"tag"`
+	Sources   []string      `json:"sources"`
 }
 
 // Clone implements pipeline Data.

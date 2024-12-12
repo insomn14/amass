@@ -1,4 +1,4 @@
-module github.com/owasp-amass/amass/v4
+module github.com/insomn14/amass/v4
 
 go 1.19
 
@@ -13,10 +13,10 @@ require (
 	github.com/fatih/color v1.15.0
 	github.com/geziyor/geziyor v0.0.0-20230315135110-a242b58aaa65
 	github.com/miekg/dns v1.1.55
-	github.com/owasp-amass/asset-db v0.3.3
-	github.com/owasp-amass/config v0.1.4
-	github.com/owasp-amass/open-asset-model v0.2.0
-	github.com/owasp-amass/resolve v0.6.21
+	github.com/insomn14/asset-db v0.3.3
+	github.com/insomn14/config v0.1.4
+	github.com/insomn14/open-asset-model v0.2.0
+	github.com/insomn14/resolve v0.6.21
 	github.com/stretchr/testify v1.8.2
 	github.com/tylertreat/BoomFilters v0.0.0-20210315201527-1a82519a3e43
 	github.com/yl2chen/cidranger v1.0.2
