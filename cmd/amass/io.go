@@ -10,7 +10,9 @@ import (
 	"net"
 	"strconv"
 	"time"
+	"math/rand"
 
+	"github.com/caffix/service"
 	"github.com/caffix/netmap"
 	"github.com/caffix/stringset"
 	"github.com/insomn14/amass/enum"
@@ -95,12 +97,14 @@ func extractAssetName(a *types.Asset) string {
 // func ExtractOutput(ctx context.Context, g *netmap.Graph, e *enum.Enumeration, filter *stringset.Set, asinfo bool) []*requests.Output {
 // 	return EventOutput(ctx, g, e.Config.Domains(), e.Config.CollectionStartTime, filter, asinfo, e.Sys.Cache())
 // }
+
 func ExtractOutput(ctx context.Context, g *netmap.Graph, e *enum.Enumeration, filter *stringset.Set, asinfo bool, limit int) []*requests.Output {
 	if e.Config.Passive {
 		return EventNames(ctx, g, e.Config.UUID.String(), filter)
 	}
 	return EventOutput(ctx, g, e.Config.UUID.String(), filter, asinfo, e.Sys.Cache(), limit)
 }
+
 
 type outLookup map[string]*requests.Output
 
