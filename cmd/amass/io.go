@@ -12,7 +12,7 @@ import (
 	"time"
 	"math/rand"
 
-	"github.com/caffix/service"
+	// "github.com/caffix/service"
 	"github.com/caffix/netmap"
 	"github.com/caffix/stringset"
 	"github.com/insomn14/amass/enum"
@@ -24,8 +24,8 @@ import (
 	"golang.org/x/net/publicsuffix"
 )
 
-func NewOutput(ctx context.Context, g *netmap.Graph, e *enum.Enumeration, filter *stringset.Set, since time.Time) []string {
-	var output []string
+func NewOutput(ctx context.Context, g *netmap.Graph, e *enum.Enumeration, filter *stringset.Set, since time.Time) []*requests.Output {
+	var output []*requests.Output
 
 	// Make sure a filter has been created
 	if filter == nil {
@@ -54,7 +54,17 @@ func NewOutput(ctx context.Context, g *netmap.Graph, e *enum.Enumeration, filter
 				if to, err := g.DB.FindById(rel.ToAsset.ID, start); err == nil {
 					tostr := extractAssetName(to)
 
-					output = append(output, fmt.Sprintf("%s %s %s %s %s", fromstr, arrow, magenta(rel.Type), arrow, tostr))
+					// output = append(output, fmt.Sprintf("%s %s %s %s %s", fromstr, arrow, magenta(rel.Type), arrow, tostr))
+					// filter.Insert(lineid)
+					
+					// Create a new Output object instead of a string
+					output = append(output, &requests.Output{
+						From:   fromstr,
+						Arrow1: arrow,
+						Type:   magenta(rel.Type),
+						Arrow2: arrow,
+						To:     tostr,
+					})
 					filter.Insert(lineid)
 				}
 			}
