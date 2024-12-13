@@ -25,7 +25,7 @@ import (
 )
 
 func NewOutput(ctx context.Context, g *netmap.Graph, e *enum.Enumeration, filter *stringset.Set, since time.Time) []*requests.Output {
-	var output []*requests.Output
+	var output []string
 
 	// Make sure a filter has been created
 	if filter == nil {
@@ -40,7 +40,7 @@ func NewOutput(ctx context.Context, g *netmap.Graph, e *enum.Enumeration, filter
 		}
 	}
 
-	arrow := white("-->")
+	arrow := "-->"
 	start := e.Config.CollectionStartTime.UTC()
 	for _, from := range assets {
 		fromstr := extractAssetName(from)
@@ -54,24 +54,25 @@ func NewOutput(ctx context.Context, g *netmap.Graph, e *enum.Enumeration, filter
 				if to, err := g.DB.FindById(rel.ToAsset.ID, start); err == nil {
 					tostr := extractAssetName(to)
 
-					// output = append(output, fmt.Sprintf("%s %s %s %s %s", fromstr, arrow, magenta(rel.Type), arrow, tostr))
-					// filter.Insert(lineid)
-					
-					// Create a new Output object instead of a string
-					output = append(output, &requests.Output{
-						From:   fromstr,
-						Arrow1: arrow,
-						Type:   magenta(rel.Type),
-						Arrow2: arrow,
-						To:     tostr,
-					})
+					output = append(output, fmt.Sprintf("%s %s %s %s %s", fromstr, arrow, magenta(rel.Type), arrow, tostr))
+					filter.Insert(lineid)
+
+					// Create a new Output object and append it to the slice
+					// output = append(output, &requests.Output{
+					// 	From:   fromstr,
+					// 	Arrow1: arrow,
+					// 	Type:   rel.Type,
+					// 	Arrow2: arrow,
+					// 	To:     tostr,
+					// })
 					filter.Insert(lineid)
 				}
 			}
 		}
 	}
+	var output1 []*requests.Output
 
-	return output
+	return output1
 }
 
 func extractAssetName(a *types.Asset) string {
