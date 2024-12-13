@@ -94,110 +94,80 @@ func extractAssetName(a *types.Asset) string {
 }
 
 // ExtractOutput is a convenience method for obtaining new discoveries made by the enumeration process.
-// func ExtractOutput(ctx context.Context, g *netmap.Graph, e *enum.Enumeration, filter *stringset.Set, asinfo bool) []*requests.Output {
-// 	return EventOutput(ctx, g, e.Config.Domains(), e.Config.CollectionStartTime, filter, asinfo, e.Sys.Cache())
-// }
-
-func ExtractOutput(ctx context.Context, g *netmap.Graph, e *enum.Enumeration, filter *stringset.Set, asinfo bool, limit int) []*requests.Output {
-	if e.Config.Passive {
-		return EventNames(ctx, g, e.Config.UUID.String(), filter)
-	}
-	return EventOutput(ctx, g, e.Config.UUID.String(), filter, asinfo, e.Sys.Cache(), limit)
+func ExtractOutput(ctx context.Context, g *netmap.Graph, e *enum.Enumeration, filter *stringset.Set, asinfo bool) []*requests.Output {
+	return EventOutput(ctx, g, e.Config.Domains(), e.Config.CollectionStartTime, filter, asinfo, e.Sys.Cache())
 }
+
+// func ExtractOutput(ctx context.Context, g *netmap.Graph, e *enum.Enumeration, filter *stringset.Set, asinfo bool, limit int) []*requests.Output {
+// 	if e.Config.Passive {
+// 		return EventNames(ctx, g, e.Config.UUID.String(), filter)
+// 	}
+// 	return EventOutput(ctx, g, e.Config.UUID.String(), filter, asinfo, e.Sys.Cache(), limit)
+// }
 
 
 type outLookup map[string]*requests.Output
 
 // EventOutput returns findings within the receiver Graph within the scope identified by the provided domain names.
 // The filter is updated by EventOutput.
-// func EventOutput(ctx context.Context, g *netmap.Graph, domains []string, since time.Time, f *stringset.Set, asninfo bool, cache *requests.ASNCache) []*requests.Output {
-// 	var res []*requests.Output
+func EventOutput(ctx context.Context, g *netmap.Graph, domains []string, since time.Time, f *stringset.Set, asninfo bool, cache *requests.ASNCache) []*requests.Output {
+	var res []*requests.Output
 
-// 	if len(domains) == 0 {
-// 		return res
-// 	}
-// 	// Make sure a filter has been created
-// 	if f == nil {
-// 		f = stringset.New()
-// 		defer f.Close()
-// 	}
-
-// 	var fqdns []oam.Asset
-// 	for _, d := range domains {
-// 		fqdns = append(fqdns, domain.FQDN{Name: d})
-// 	}
-
-// 	qtime := time.Time{}
-// 	if !since.IsZero() {
-// 		qtime = since.UTC()
-// 	}
-
-// 	assets, err := g.DB.FindByScope(fqdns, qtime)
-// 	if err != nil {
-// 		return res
-// 	}
-
-// 	var names []string
-// 	for _, a := range assets {
-// 		if n, ok := a.Asset.(domain.FQDN); ok && !f.Has(n.Name) {
-// 			names = append(names, n.Name)
-// 		}
-// 	}
-
-// 	lookup := make(outLookup, len(names))
-// 	for _, n := range names {
-// 		d, err := publicsuffix.EffectiveTLDPlusOne(n)
-// 		if err != nil {
-// 			continue
-// 		}
-
-// 		o := &requests.Output{
-// 			Name:   n,
-// 			Domain: d,
-// 		}
-// 		res = append(res, o)
-// 		lookup[n] = o
-// 	}
-// 	// Build the lookup map used to create the final result set
-// 	if pairs, err := g.NamesToAddrs(ctx, qtime, names...); err == nil {
-// 		for _, p := range pairs {
-// 			addr := p.Addr.Address.String()
-
-// 			if p.FQDN.Name == "" || addr == "" {
-// 				continue
-// 			}
-// 			if o, found := lookup[p.FQDN.Name]; found {
-// 				o.Addresses = append(o.Addresses, requests.AddressInfo{Address: net.ParseIP(addr)})
-// 			}
-// 		}
-// 	}
-
-// 	if !asninfo || cache == nil {
-// 		return removeDuplicates(lookup, f)
-// 	}
-// 	return addInfrastructureInfo(lookup, f, cache)
-// }
-
-func EventOutput(ctx context.Context, g *netmap.Graph, uuid string, f *stringset.Set, asninfo bool, cache *requests.ASNCache, limit int) []*requests.Output {
+	if len(domains) == 0 {
+		return res
+	}
 	// Make sure a filter has been created
 	if f == nil {
 		f = stringset.New()
 		defer f.Close()
 	}
 
-	names := randomSelection(g.EventFQDNs(ctx, uuid), f, limit)
+	var fqdns []oam.Asset
+	for _, d := range domains {
+		fqdns = append(fqdns, domain.FQDN{Name: d})
+	}
+
+	qtime := time.Time{}
+	if !since.IsZero() {
+		qtime = since.UTC()
+	}
+
+	assets, err := g.DB.FindByScope(fqdns, qtime)
+	if err != nil {
+		return res
+	}
+
+	var names []string
+	for _, a := range assets {
+		if n, ok := a.Asset.(domain.FQDN); ok && !f.Has(n.Name) {
+			names = append(names, n.Name)
+		}
+	}
+
 	lookup := make(outLookup, len(names))
-	for _, o := range buildNameInfo(ctx, g, uuid, names) {
-		lookup[o.Name] = o
+	for _, n := range names {
+		d, err := publicsuffix.EffectiveTLDPlusOne(n)
+		if err != nil {
+			continue
+		}
+
+		o := &requests.Output{
+			Name:   n,
+			Domain: d,
+		}
+		res = append(res, o)
+		lookup[n] = o
 	}
 	// Build the lookup map used to create the final result set
-	if pairs, err := g.NamesToAddrs(ctx, uuid, names...); err == nil {
+	if pairs, err := g.NamesToAddrs(ctx, qtime, names...); err == nil {
 		for _, p := range pairs {
-			if p.Name == "" || p.Addr == "" {
+			addr := p.Addr.Address.String()
+
+			if p.FQDN.Name == "" || addr == "" {
 				continue
 			}
-			if o, found := lookup[p.Name]; found {
-				o.Addresses = append(o.Addresses, requests.AddressInfo{Address: net.ParseIP(p.Addr)})
+			if o, found := lookup[p.FQDN.Name]; found {
+				o.Addresses = append(o.Addresses, requests.AddressInfo{Address: net.ParseIP(addr)})
 			}
 		}
 	}
@@ -207,6 +177,36 @@ func EventOutput(ctx context.Context, g *netmap.Graph, uuid string, f *stringset
 	}
 	return addInfrastructureInfo(lookup, f, cache)
 }
+
+// func EventOutput(ctx context.Context, g *netmap.Graph, uuid string, f *stringset.Set, asninfo bool, cache *requests.ASNCache, limit int) []*requests.Output {
+// 	// Make sure a filter has been created
+// 	if f == nil {
+// 		f = stringset.New()
+// 		defer f.Close()
+// 	}
+
+// 	names := randomSelection(g.EventFQDNs(ctx, uuid), f, limit)
+// 	lookup := make(outLookup, len(names))
+// 	for _, o := range buildNameInfo(ctx, g, uuid, names) {
+// 		lookup[o.Name] = o
+// 	}
+// 	// Build the lookup map used to create the final result set
+// 	if pairs, err := g.NamesToAddrs(ctx, uuid, names...); err == nil {
+// 		for _, p := range pairs {
+// 			if p.Name == "" || p.Addr == "" {
+// 				continue
+// 			}
+// 			if o, found := lookup[p.Name]; found {
+// 				o.Addresses = append(o.Addresses, requests.AddressInfo{Address: net.ParseIP(p.Addr)})
+// 			}
+// 		}
+// 	}
+
+// 	if !asninfo || cache == nil {
+// 		return removeDuplicates(lookup, f)
+// 	}
+// 	return addInfrastructureInfo(lookup, f, cache)
+// }
 
 func randomSelection(names []string, filter *stringset.Set, limit int) []string {
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))

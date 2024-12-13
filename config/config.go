@@ -23,7 +23,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/owasp-amass/amass/v3/resources"
+	"github.com/insomn14/amass/resources"
 	"github.com/caffix/stringset"
 	"github.com/go-ini/ini"
 	"github.com/google/uuid"
@@ -31,7 +31,7 @@ import (
 
 const (
 	outputDirName  = "amass"
-	defaultCfgFile = "config.ini"
+	defaultCfgFile = "config.yaml"
 	cfgEnvironVar  = "AMASS_CONFIG"
 	systemCfgDir   = "/etc"
 )

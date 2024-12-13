@@ -452,11 +452,8 @@ func processOutput(ctx context.Context, g *netmap.Graph, e *enum.Enumeration, ou
 	// This filter ensures that we only get new names
 	known := stringset.New()
 	defer known.Close()
-	extract := func(limit int) {
-		for _, o := range ExtractOutput(ctx, g, e, known, true, limit) {
-			if !o.Complete(e.Config.Passive) || !e.Config.IsDomainInScope(o.Name) {
-				continue
-			}
+	extract := func(since time.Time) {
+		for _, o := range ExtractOutput(ctx, g, e, known, since) {
 			for _, ch := range outputs {
 				ch <- o
 			}
