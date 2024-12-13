@@ -12,7 +12,7 @@ import (
 	"github.com/caffix/pipeline"
 	"github.com/caffix/queue"
 	"github.com/caffix/service"
-	"github.com/insomn14/amass/v4/requests"
+	"github.com/insomn14/amass/requests"
 	bf "github.com/tylertreat/BoomFilters"
 )
 

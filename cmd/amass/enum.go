@@ -25,12 +25,13 @@ import (
 	"github.com/caffix/netmap"
 	"github.com/caffix/stringset"
 	"github.com/fatih/color"
-	"github.com/insomn14/amass/v4/datasrcs"
-	"github.com/insomn14/amass/v4/enum"
-	"github.com/insomn14/amass/v4/format"
-	"github.com/insomn14/amass/v4/resources"
-	"github.com/insomn14/amass/v4/systems"
-	"github.com/insomn14/config/config"
+	"github.com/insomn14/amass/datasrcs"
+	"github.com/insomn14/amass/enum"
+	"github.com/insomn14/amass/format"
+	"github.com/insomn14/amass/resources"
+	"github.com/insomn14/amass/requests"
+	"github.com/insomn14/amass/systems"
+	"github.com/owasp-amass/config/config"
 )
 
 const enumUsageMsg = "enum [options] -d DOMAIN"
@@ -59,17 +60,22 @@ type enumArgs struct {
 	Trusted           *stringset.Set
 	Timeout           int
 	Options           struct {
-		Active       bool
-		Alterations  bool
-		BruteForcing bool
-		DemoMode     bool
-		ListSources  bool
-		NoAlts       bool
-		NoColor      bool
-		NoRecursive  bool
-		Passive      bool
-		Silent       bool
-		Verbose      bool
+		Active          bool
+		Alterations     bool
+		BruteForcing    bool
+		DemoMode        bool
+		IPs             bool
+		IPv4            bool
+		IPv6            bool
+		ListSources     bool
+		NoAlts          bool
+		NoColor         bool
+		NoLocalDatabase bool
+		NoRecursive     bool
+		Passive         bool
+		Silent          bool
+		Sources         bool
+		Verbose         bool
 	}
 	Filepaths struct {
 		AllFilePrefix    string
@@ -184,21 +190,22 @@ func runEnumCommand(clArgs []string) {
 	}
 
 	var wg sync.WaitGroup
-	var outChans []chan string
+	var outChans []chan *requests.Output
 	// This channel sends the signal for goroutines to terminate
 	done := make(chan struct{})
 	// Print output only if JSONOutput is not meant for STDOUT
 	if args.Filepaths.JSONOutput != "-" {
 		wg.Add(1)
 		// This goroutine will handle printing the output
-		printOutChan := make(chan string, 10)
+		// printOutChan := make(chan string, 10)
+		printOutChan := make(chan *requests.Output, 10)
 		go printOutput(e, args, printOutChan, &wg)
 		outChans = append(outChans, printOutChan)
 	}
 
 	wg.Add(1)
 	// This goroutine will handle saving the output to the text file
-	txtOutChan := make(chan string, 10)
+	txtOutChan := make(chan *requests.Output, 10)
 	go saveTextOutput(e, args, txtOutChan, &wg)
 	outChans = append(outChans, txtOutChan)
 
@@ -335,6 +342,10 @@ func argsAndConfig(clArgs []string) (*config.Config, *enumArgs) {
 		return nil, &args
 	}
 	// Some input validation
+	if cfg.Passive && (args.Options.IPs || args.Options.IPv4 || args.Options.IPv6) {
+		r.Fprintln(color.Error, "IP addresses cannot be provided without DNS resolution")
+		os.Exit(1)
+	}
 	if !cfg.Active && len(args.Ports) > 0 {
 		r.Fprintln(color.Error, "Ports can only be scanned in the active mode")
 		os.Exit(1)
@@ -346,22 +357,56 @@ func argsAndConfig(clArgs []string) (*config.Config, *enumArgs) {
 	return cfg, &args
 }
 
-func printOutput(e *enum.Enumeration, args *enumArgs, output chan string, wg *sync.WaitGroup) {
+// func printOutput(e *enum.Enumeration, args *enumArgs, output chan string, wg *sync.WaitGroup) {
+// 	defer wg.Done()
+
+// 	var total int
+// 	// Print all the output returned by the enumeration
+// 	for out := range output {
+// 		fmt.Fprintf(color.Output, "%s\n", out)
+// 		total++
+// 	}
+
+// 	if total == 0 {
+// 		r.Println("No assets were discovered")
+// 	}
+// }
+
+func printOutput(e *enum.Enumeration, args *enumArgs, output chan *requests.Output, wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	var total int
+	tags := make(map[string]int)
+	asns := make(map[int]*format.ASNSummaryData)
 	// Print all the output returned by the enumeration
 	for out := range output {
-		fmt.Fprintf(color.Output, "%s\n", out)
+		out.Addresses = format.DesiredAddrTypesOld(out.Addresses, args.Options.IPv4, args.Options.IPv6)
+		if !e.Config.Passive && len(out.Addresses) <= 0 {
+			continue
+		}
+
 		total++
+		if !args.Options.Passive {
+			format.UpdateSummaryDataOld(out, tags, asns)
+		}
+
+		source, name, ips := format.OutputLinePartsOld(out, args.Options.Sources,
+			args.Options.IPs || args.Options.IPv4 || args.Options.IPv6, args.Options.DemoMode)
+		if ips != "" {
+			ips = " " + ips
+		}
+
+		fmt.Fprintf(color.Output, "%s%s%s\n", blue(source), green(name), yellow(ips))
 	}
 
 	if total == 0 {
-		r.Println("No assets were discovered")
+		r.Println("No names were discovered")
+	} else if !args.Options.Passive {
+		format.PrintEnumerationSummaryOld(total, tags, asns, args.Options.DemoMode)
 	}
 }
 
-func saveTextOutput(e *enum.Enumeration, args *enumArgs, output chan string, wg *sync.WaitGroup) {
+func saveTextOutput(e *enum.Enumeration, args *enumArgs, output chan *requests.Output, wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	dir := config.OutputDirectory(e.Config.Dir)
@@ -395,7 +440,7 @@ func saveTextOutput(e *enum.Enumeration, args *enumArgs, output chan string, wg 
 	}
 }
 
-func processOutput(ctx context.Context, g *netmap.Graph, e *enum.Enumeration, outputs []chan string, done chan struct{}, wg *sync.WaitGroup) {
+func processOutput(ctx context.Context, g *netmap.Graph, e *enum.Enumeration, outputs []chan *requests.Output, done chan struct{}, wg *sync.WaitGroup) {
 	defer wg.Done()
 	defer func() {
 		// Signal all the other output goroutines to terminate
@@ -407,9 +452,11 @@ func processOutput(ctx context.Context, g *netmap.Graph, e *enum.Enumeration, ou
 	// This filter ensures that we only get new names
 	known := stringset.New()
 	defer known.Close()
-	// The function that obtains output from the enum and puts it on the channel
-	extract := func(since time.Time) {
-		for _, o := range NewOutput(ctx, g, e, known, since) {
+	extract := func(limit int) {
+		for _, o := range ExtractOutput(ctx, g, e, known, true, limit) {
+			if !o.Complete(e.Config.Passive) || !e.Config.IsDomainInScope(o.Name) {
+				continue
+			}
 			for _, ch := range outputs {
 				ch <- o
 			}
@@ -418,20 +465,17 @@ func processOutput(ctx context.Context, g *netmap.Graph, e *enum.Enumeration, ou
 
 	t := time.NewTimer(10 * time.Second)
 	defer t.Stop()
-	last := e.Config.CollectionStartTime
 	for {
 		select {
 		case <-ctx.Done():
-			extract(last)
+			extract(0)
 			return
 		case <-done:
-			extract(last)
+			extract(0)
 			return
 		case <-t.C:
-			next := time.Now()
-			extract(last)
+			extract(500)
 			t.Reset(10 * time.Second)
-			last = next
 		}
 	}
 }

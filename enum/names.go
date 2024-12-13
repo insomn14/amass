@@ -10,10 +10,10 @@ import (
 
 	"github.com/caffix/pipeline"
 	"github.com/caffix/stringset"
-	"github.com/insomn14/amass/v4/requests"
-	"github.com/insomn14/asset-db/types"
-	oam "github.com/insomn14/open-asset-model"
-	"github.com/insomn14/open-asset-model/domain"
+	"github.com/insomn14/amass/requests"
+	"github.com/owasp-amass/asset-db/types"
+	oam "github.com/owasp-amass/open-asset-model"
+	"github.com/owasp-amass/open-asset-model/domain"
 )
 
 // subdomainTask handles newly discovered proper subdomain names in the enumeration.

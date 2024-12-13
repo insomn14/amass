@@ -44,7 +44,7 @@ If you prefer to build your own binary from the latest release of the source cod
 Simply execute the following command:
 
 ```bash
-go install -v github.com/insomn14/amass/v4/...@master
+go install -v github.com/insomn14/amass/...@master
 ```
 
 At this point, the binary should be in *$GOPATH/bin*.

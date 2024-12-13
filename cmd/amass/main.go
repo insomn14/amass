@@ -32,11 +32,11 @@ import (
 
 	"github.com/caffix/service"
 	"github.com/fatih/color"
-	"github.com/insomn14/amass/v4/datasrcs"
-	"github.com/insomn14/amass/v4/format"
-	amassnet "github.com/insomn14/amass/v4/net"
-	"github.com/insomn14/amass/v4/systems"
-	"github.com/insomn14/config/config"
+	"github.com/insomn14/amass/datasrcs"
+	"github.com/insomn14/amass/format"
+	amassnet "github.com/insomn14/amass/net"
+	"github.com/insomn14/amass/systems"
+	"github.com/owasp-amass/config/config"
 )
 
 const (

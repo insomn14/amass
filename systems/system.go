@@ -10,9 +10,9 @@ import (
 
 	"github.com/caffix/netmap"
 	"github.com/caffix/service"
-	"github.com/insomn14/amass/v4/requests"
-	"github.com/insomn14/config/config"
-	"github.com/insomn14/resolve"
+	"github.com/insomn14/amass/requests"
+	"github.com/owasp-amass/config/config"
+	"github.com/owasp-amass/resolve"
 )
 
 // System is the object type for managing services that perform various reconnaissance activities.

@@ -11,7 +11,7 @@ import (
 
 	"github.com/caffix/pipeline"
 	"github.com/miekg/dns"
-	amassdns "github.com/insomn14/amass/v4/net/dns"
+	amassdns "github.com/insomn14/amass/net/dns"
 )
 
 // Request Pub/Sub topics used across Amass.

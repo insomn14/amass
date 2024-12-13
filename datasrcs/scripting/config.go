@@ -6,8 +6,8 @@ package scripting
 
 import (
 	"github.com/caffix/service"
-	"github.com/insomn14/amass/v4/format"
-	"github.com/insomn14/config/config"
+	"github.com/insomn14/amass/format"
+	"github.com/owasp-amass/config/config"
 	lua "github.com/yuin/gopher-lua"
 )
 

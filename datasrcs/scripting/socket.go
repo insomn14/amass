@@ -11,7 +11,7 @@ import (
 	"net"
 	"strconv"
 
-	amassnet "github.com/insomn14/amass/v4/net"
+	amassnet "github.com/insomn14/amass/net"
 	lua "github.com/yuin/gopher-lua"
 )
 

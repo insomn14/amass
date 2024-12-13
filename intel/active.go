@@ -11,8 +11,8 @@ import (
 
 	"github.com/caffix/pipeline"
 	"github.com/caffix/queue"
-	"github.com/insomn14/amass/v4/net/http"
-	"github.com/insomn14/amass/v4/requests"
+	"github.com/insomn14/amass/net/http"
+	"github.com/insomn14/amass/requests"
 	"golang.org/x/net/publicsuffix"
 )
 

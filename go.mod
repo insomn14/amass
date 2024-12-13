@@ -1,4 +1,4 @@
-module github.com/insomn14/amass/v4
+module github.com/insomn14/amass
 
 go 1.19
 
@@ -13,10 +13,10 @@ require (
 	github.com/fatih/color v1.15.0
 	github.com/geziyor/geziyor v0.0.0-20230315135110-a242b58aaa65
 	github.com/miekg/dns v1.1.55
-	github.com/insomn14/asset-db v0.3.3
-	github.com/insomn14/config v0.1.4
-	github.com/insomn14/open-asset-model v0.2.0
-	github.com/insomn14/resolve v0.6.21
+	github.com/owasp-amass/asset-db v0.3.3
+	github.com/owasp-amass/config v0.1.4
+	github.com/owasp-amass/open-asset-model v0.2.0
+	github.com/owasp-amass/resolve v0.6.21
 	github.com/stretchr/testify v1.8.2
 	github.com/tylertreat/BoomFilters v0.0.0-20210315201527-1a82519a3e43
 	github.com/yl2chen/cidranger v1.0.2
@@ -44,8 +44,6 @@ require (
 	github.com/go-gorp/gorp/v3 v3.1.0 // indirect
 	github.com/go-kit/kit v0.13.0 // indirect
 	github.com/go-sql-driver/mysql v1.7.1 // indirect
-	github.com/gobuffalo/logger v1.0.7 // indirect
-	github.com/gobuffalo/packd v1.0.2 // indirect
 	github.com/gobwas/httphead v0.1.0 // indirect
 	github.com/gobwas/pool v0.2.1 // indirect
 	github.com/gobwas/ws v1.3.0 // indirect
@@ -60,11 +58,11 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
-	github.com/karrick/godirwalk v1.17.0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.19 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.4 // indirect
+	github.com/owasp-amass/amass/v4 v4.0.2 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/prometheus/client_golang v1.16.0 // indirect
@@ -73,7 +71,6 @@ require (
 	github.com/prometheus/procfs v0.11.1 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/rubenv/sql-migrate v1.5.2 // indirect
-	github.com/sirupsen/logrus v1.9.0 // indirect
 	github.com/temoto/robotstxt v1.1.2 // indirect
 	go.uber.org/ratelimit v0.3.0 // indirect
 	golang.org/x/crypto v0.13.0 // indirect

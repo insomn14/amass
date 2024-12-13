@@ -11,7 +11,7 @@ import (
 	"strconv"
 	"strings"
 
-	amassnet "github.com/insomn14/amass/v4/net"
+	amassnet "github.com/insomn14/amass/net"
 )
 
 // ParseStrings implements the flag.Value interface.

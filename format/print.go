@@ -12,8 +12,8 @@ import (
 	"strings"
 
 	"github.com/fatih/color"
-	amassnet "github.com/insomn14/amass/v4/net"
-	"github.com/insomn14/amass/v4/requests"
+	amassnet "github.com/insomn14/amass/net"
+	"github.com/insomn14/amass/requests"
 )
 
 // Banner is the ASCII art logo used within help output.
@@ -43,6 +43,7 @@ const (
 
 var (
 	// Colors used to ease the reading of program output
+	g      = color.New(color.FgHiGreen)
 	b      = color.New(color.FgHiBlue)
 	y      = color.New(color.FgHiYellow)
 	r      = color.New(color.FgHiRed)
@@ -77,9 +78,34 @@ func UpdateSummaryData(output *requests.Output, asns map[int]*ASNSummaryData) {
 	}
 }
 
+func UpdateSummaryDataOld(output *requests.Output, tags map[string]int, asns map[int]*ASNSummaryData) {
+	tags[output.Tag]++
+
+	for _, addr := range output.Addresses {
+		if addr.CIDRStr == "" {
+			continue
+		}
+
+		data, found := asns[addr.ASN]
+		if !found {
+			asns[addr.ASN] = &ASNSummaryData{
+				Name:      addr.Description,
+				Netblocks: make(map[string]int),
+			}
+			data = asns[addr.ASN]
+		}
+		// Increment how many IPs were in this netblock
+		data.Netblocks[addr.CIDRStr]++
+	}
+}
+
 // PrintEnumerationSummary outputs the summary information utilized by the command-line tools.
 func PrintEnumerationSummary(total int, asns map[int]*ASNSummaryData, demo bool) {
 	FprintEnumerationSummary(color.Error, total, asns, demo)
+}
+
+func PrintEnumerationSummaryOld(total int, tags map[string]int, asns map[int]*ASNSummaryData, demo bool) {
+	FprintEnumerationSummaryOld(color.Error, total, tags, asns, demo)
 }
 
 // FprintEnumerationSummary outputs the summary information utilized by the command-line tools.
@@ -100,6 +126,66 @@ func FprintEnumerationSummary(out io.Writer, total int, asns map[int]*ASNSummary
 	b.Fprintf(out, "%s\n", site)
 	pad(8, "----------")
 	fmt.Fprintf(out, "\n%s%s", yellow(strconv.Itoa(total)), green(" names discovered"))
+	fmt.Fprintln(out)
+
+	if len(asns) == 0 {
+		return
+	}
+	// Another line gets printed
+	pad(8, "----------")
+	fmt.Fprintln(out)
+	// Print the ASN and netblock information
+	for asn, data := range asns {
+		asnstr := strconv.Itoa(asn)
+		datastr := data.Name
+
+		if demo && asn > 0 {
+			asnstr = censorString(asnstr, 0, len(asnstr))
+			datastr = censorString(datastr, 0, len(datastr))
+		}
+		fmt.Fprintf(out, "%s%s %s %s\n", blue("ASN: "), yellow(asnstr), green("-"), green(datastr))
+
+		for cidr, ips := range data.Netblocks {
+			countstr := strconv.Itoa(ips)
+			cidrstr := cidr
+
+			if demo {
+				cidrstr = censorNetBlock(cidrstr)
+			}
+
+			countstr = fmt.Sprintf("\t%-4s", countstr)
+			cidrstr = fmt.Sprintf("\t%-18s", cidrstr)
+			fmt.Fprintf(out, "%s%s %s\n", yellow(cidrstr), yellow(countstr), blue("Subdomain Name(s)"))
+		}
+	}
+}
+
+func FprintEnumerationSummaryOld(out io.Writer, total int, tags map[string]int, asns map[int]*ASNSummaryData, demo bool) {
+	pad := func(num int, chr string) {
+		for i := 0; i < num; i++ {
+			b.Fprint(out, chr)
+		}
+	}
+
+	fmt.Fprintln(out)
+	// Print the header information
+	title := "OWASP Amass "
+	site := "https://github.com/owasp-amass/amass"
+	b.Fprint(out, title+Version)
+	num := 80 - (len(title) + len(Version) + len(site))
+	pad(num, " ")
+	b.Fprintf(out, "%s\n", site)
+	pad(8, "----------")
+	fmt.Fprintf(out, "\n%s%s", yellow(strconv.Itoa(total)), green(" names discovered - "))
+	// Print the stats using tag information
+	num, length := 1, len(tags)
+	for k, v := range tags {
+		fmt.Fprintf(out, "%s: %s", green(k), yellow(strconv.Itoa(v)))
+		if num < length {
+			g.Fprint(out, ", ")
+		}
+		num++
+	}
 	fmt.Fprintln(out)
 
 	if len(asns) == 0 {
@@ -205,6 +291,33 @@ func OutputLineParts(out *requests.Output, addrs, demo bool) (name, ips string) 
 	return
 }
 
+func OutputLinePartsOld(out *requests.Output, src, addrs, demo bool) (source, name, ips string) {
+	if src {
+		source = fmt.Sprintf("%-18s", "["+out.Sources[0]+"] ")
+	}
+	if addrs {
+		for i, a := range out.Addresses {
+			if i != 0 {
+				ips += ","
+			}
+			if demo {
+				ips += censorIP(a.Address.String())
+			} else {
+				ips += a.Address.String()
+			}
+		}
+		if ips == "" {
+			ips = "N/A"
+		}
+	}
+	name = out.Name
+	if demo {
+		name = censorDomain(name)
+	}
+	return
+}
+
+
 // DesiredAddrTypes removes undesired address types from the AddressInfo slice.
 func DesiredAddrTypes(addrs []requests.AddressInfo, ipv4, ipv6 bool) []requests.AddressInfo {
 	var kept []requests.AddressInfo
@@ -218,6 +331,23 @@ func DesiredAddrTypes(addrs []requests.AddressInfo, ipv4, ipv6 bool) []requests.
 	}
 
 	return kept
+}
+
+func DesiredAddrTypesOld(addrs []requests.AddressInfo, ipv4, ipv6 bool) []requests.AddressInfo {
+	if !ipv4 && !ipv6 {
+		return addrs
+	}
+
+	var keep []requests.AddressInfo
+	for _, addr := range addrs {
+		if amassnet.IsIPv4(addr.Address) && !ipv4 {
+			continue
+		} else if amassnet.IsIPv6(addr.Address) && !ipv6 {
+			continue
+		}
+		keep = append(keep, addr)
+	}
+	return keep
 }
 
 // InterfaceInfo returns network interface information specific to the current host.

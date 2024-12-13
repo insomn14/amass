@@ -15,8 +15,8 @@ import (
 	"github.com/caffix/pipeline"
 	"github.com/caffix/queue"
 	"github.com/miekg/dns"
-	"github.com/insomn14/amass/v4/requests"
-	"github.com/insomn14/resolve"
+	"github.com/insomn14/amass/requests"
+	"github.com/owasp-amass/resolve"
 )
 
 const (

@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/caffix/stringset"
-	"github.com/insomn14/amass/v4/requests"
-	"github.com/insomn14/config/config"
+	"github.com/insomn14/amass/requests"
+	"github.com/owasp-amass/config/config"
 )
 
 func TestNewNames(t *testing.T) {

@@ -8,9 +8,9 @@ import (
 	"net/netip"
 	"strings"
 
-	"github.com/insomn14/asset-db/types"
-	"github.com/insomn14/open-asset-model/domain"
-	"github.com/insomn14/open-asset-model/network"
+	"github.com/owasp-amass/asset-db/types"
+	"github.com/owasp-amass/open-asset-model/domain"
+	"github.com/owasp-amass/open-asset-model/network"
 )
 
 const falsePositiveThreshold int = 100

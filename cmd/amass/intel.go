@@ -20,11 +20,11 @@ import (
 
 	"github.com/caffix/stringset"
 	"github.com/fatih/color"
-	"github.com/insomn14/amass/v4/datasrcs"
-	"github.com/insomn14/amass/v4/format"
-	"github.com/insomn14/amass/v4/intel"
-	"github.com/insomn14/amass/v4/systems"
-	"github.com/insomn14/config/config"
+	"github.com/insomn14/amass/datasrcs"
+	"github.com/insomn14/amass/format"
+	"github.com/insomn14/amass/intel"
+	"github.com/insomn14/amass/systems"
+	"github.com/owasp-amass/config/config"
 )
 
 const (

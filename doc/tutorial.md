@@ -57,7 +57,7 @@ Usage: amass intel [options] [-whois -d DOMAIN] [-addr ADDR -asn ASN -cidr CIDR]
 
 It is probably worth noting at this point that another great perk of Amass is that all the subcommands attempt to maintain argument consistency.
 
-This subcommand will use a number of information gathering techniques and data sources by default, such as WHOIS, in order to obtain intelligence and parent domains owned by the organization, unless these are explicitly disabled in Amass' configuration file. An example Amass configuration file is available [on the GitHub config repository](https://github.com/insomn14/config/blob/master/examples/config.yaml).
+This subcommand will use a number of information gathering techniques and data sources by default, such as WHOIS, in order to obtain intelligence and parent domains owned by the organization, unless these are explicitly disabled in Amass' configuration file. An example Amass configuration file is available [on the GitHub config repository](https://github.com/owasp-amass/config/blob/master/examples/config.yaml).
 
 ```bash
 

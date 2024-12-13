@@ -13,12 +13,12 @@ import (
 	"github.com/caffix/pipeline"
 	"github.com/caffix/queue"
 	"github.com/caffix/service"
-	"github.com/insomn14/amass/v4/datasrcs"
-	"github.com/insomn14/amass/v4/requests"
-	"github.com/insomn14/amass/v4/systems"
-	"github.com/insomn14/config/config"
-	oam "github.com/insomn14/open-asset-model"
-	"github.com/insomn14/open-asset-model/domain"
+	"github.com/insomn14/amass/datasrcs"
+	"github.com/insomn14/amass/requests"
+	"github.com/insomn14/amass/systems"
+	"github.com/owasp-amass/config/config"
+	oam "github.com/owasp-amass/open-asset-model"
+	"github.com/owasp-amass/open-asset-model/domain"
 )
 
 // Enumeration is the object type used to execute a DNS enumeration.
