@@ -378,74 +378,35 @@ func argsAndConfig(clArgs []string) (*config.Config, *enumArgs) {
 	return cfg, &args
 }
 
+func stripANSI(s string) string {
+	// Regular expression to match ANSI escape codes
+	re := regexp.MustCompile(`\x1B\[[0-?9;]*[mK]`)
+	return re.ReplaceAllString(s, "")
+}
+
 func printOutput(e *enum.Enumeration, args *enumArgs, output chan string, wg *sync.WaitGroup) {
 	defer wg.Done()
 
-	fmt.Println("[*] Called --> printOutput()")
-	fmt.Println("[+] ENUM --> ", e)
+	// fmt.Println("[*] Called --> printOutput()")
 	var total int
-	// tags := make(map[string]int)
-	asns := make(map[int]*format.ASNSummaryData)
+	var records []string
+
 	// Print all the output returned by the enumeration
 	for out := range output {
+		// Cleaned output
+		cleanedOut := stripANSI(out)
+		// Print the result and stored it to records
 		fmt.Fprintf(color.Output, "%s\n", out)
+		records = append(records, cleanedOut)
 		total++
-
-		// if !args.Options.Passive {
-		// 	format.UpdateSummaryData(out,  asns)
-		// }
-
-		// fmt.Println("[+] OUTPUT --> ", out)
-		// name, ips := format.OutputLineParts(out, args.Options.Sources, args.Options.DemoMode)
-		// if ips != "" {
-		// 	ips = " " + ips
-		// }
-		// fmt.Fprintf(color.Output, "%s%s%s\n", blue(source), green(name), yellow(ips))
 	}
 
 	if total == 0 {
 		r.Println("No assets were discovered")
 	} else if !args.Options.Passive {
-		format.PrintEnumerationSummary(total, asns, true)
+		format.PrintEnumerationSummary(records)
 	}
 }
-
-// func printOutput(e *enum.Enumeration, args *enumArgs, output chan *requests.Output, wg *sync.WaitGroup) {
-// 	defer wg.Done()
-
-// 	var total int
-// 	tags := make(map[string]int)
-// 	asns := make(map[int]*format.ASNSummaryData)
-// 	// Print all the output returned by the enumeration
-// 	fmt.Println("[*] Called --> printOutput()")
-// 	for out := range output {
-// 		out.Addresses = format.DesiredAddrTypesOld(out.Addresses, args.Options.IPv4, args.Options.IPv6)
-// 		if !e.Config.Passive && len(out.Addresses) <= 0 {
-// 			continue
-// 		}
-
-// 		total++
-// 		if !args.Options.Passive {
-// 			format.UpdateSummaryDataOld(out, tags, asns)
-// 		}
-
-// 		source, name, ips := format.OutputLinePartsOld(out, args.Options.Sources,
-// 			args.Options.IPs || args.Options.IPv4 || args.Options.IPv6, args.Options.DemoMode)
-// 		if ips != "" {
-// 			ips = " " + ips
-// 		}
-
-// 		fmt.Fprintf(color.Output, "%s%s%s\n", blue(source), green(name), yellow(ips))
-// 	}
-
-// 	fmt.Println("[*] Called --> printOutput()")
-
-// 	if total == 0 {
-// 		r.Println("No names were discovered")
-	// } else if !args.Options.Passive {
-	// 	format.PrintEnumerationSummaryOld(total, tags, asns, args.Options.DemoMode)
-	// }
-// }
 
 func saveTextOutput(e *enum.Enumeration, args *enumArgs, output chan string, wg *sync.WaitGroup) {
 	defer wg.Done()

@@ -10,7 +10,6 @@ import (
 	"net"
 	"strconv"
 	"strings"
-
 	"github.com/fatih/color"
 	amassnet "github.com/insomn14/amass/net"
 	"github.com/insomn14/amass/requests"
@@ -58,6 +57,62 @@ type ASNSummaryData struct {
 	Netblocks map[string]int
 }
 
+func PrintEnumerationSummary(records []string) {
+	// Maps to hold the summarized data
+	asns := make(map[string]map[string]string) // ASN -> (FQDN/IP -> Type)
+	fqdns := make(map[string]string)             // FQDN -> IP
+
+	// Parse the records
+	for _, record := range records {
+		parts := strings.Split(record, " --> ")
+		if len(parts) < 3 {
+			continue // Skip malformed records
+		}
+
+		left := strings.TrimSpace(parts[0])
+		// right := strings.TrimSpace(parts[1])
+		value := strings.TrimSpace(parts[2])
+
+		// Check if the record is an ASN
+		if strings.HasSuffix(left, "(ASN)") {
+			asnID := left[:len(left)-len(" (ASN)")]
+			// fmt.Printf("[!] Parts: %s\n", asnID)
+			asnDetails := strings.Split(value, " ")
+			// fmt.Printf("[!] Parts: %s\n", asnDetails)
+			if len(asnDetails) >= 2 {
+				asns[asnID] = map[string]string{
+					"organization": strings.Join(asnDetails[1:], " "),
+					"netblocks":    "",
+				}
+			}
+		} else if strings.HasSuffix(left, "(Netblock)") {
+			// If it's a netblock, associate it with the ASN
+			for asnID := range asns {
+				asns[asnID]["netblocks"] += left + " "
+			}
+		} else if strings.HasSuffix(left, "(FQDN)") || strings.HasSuffix(left, "(IPAddress)") {
+			// If it's a FQDN or IP address, store it
+			if strings.HasSuffix(left, "(FQDN)") {
+				fqdns[left] = value
+			} else {
+				fqdns[left] = value
+			}
+		}
+	}
+
+	// Print the summary
+	for asnID, details := range asns {
+		fmt.Printf("ASN: %s - %s %s\n", asnID, details["organization"], details["netblocks"])
+		for fqdn, ip := range fqdns {
+			if strings.HasSuffix(fqdn, "(FQDN)") {
+				fmt.Printf(" - %s: %s\n", strings.TrimSuffix(fqdn, " (FQDN)"), ip)
+			} else {
+				fmt.Printf(" - %s: %s\n", fqdn, ip)
+			}
+		}
+	}
+}
+
 // UpdateSummaryData updates the summary maps using the provided requests.Output data.
 func UpdateSummaryData(output *requests.Output, asns map[int]*ASNSummaryData) {
 	for _, addr := range output.Addresses {
@@ -78,35 +133,11 @@ func UpdateSummaryData(output *requests.Output, asns map[int]*ASNSummaryData) {
 	}
 }
 
-func UpdateSummaryDataOld(output *requests.Output, tags map[string]int, asns map[int]*ASNSummaryData) {
-	tags[output.Tag]++
-
-	for _, addr := range output.Addresses {
-		if addr.CIDRStr == "" {
-			continue
-		}
-
-		data, found := asns[addr.ASN]
-		if !found {
-			asns[addr.ASN] = &ASNSummaryData{
-				Name:      addr.Description,
-				Netblocks: make(map[string]int),
-			}
-			data = asns[addr.ASN]
-		}
-		// Increment how many IPs were in this netblock
-		data.Netblocks[addr.CIDRStr]++
-	}
-}
-
 // PrintEnumerationSummary outputs the summary information utilized by the command-line tools.
-func PrintEnumerationSummary(total int, asns map[int]*ASNSummaryData, demo bool) {
-	FprintEnumerationSummary(color.Error, total, asns, demo)
-}
-
-// func PrintEnumerationSummaryOld(total int, tags map[string]int, asns map[int]*ASNSummaryData, demo bool) {
-// 	FprintEnumerationSummaryOld(color.Error, total, tags, asns, demo)
+// func PrintEnumerationSummary(total int, asns map[int]*ASNSummaryData, demo bool) {
+// 	FprintEnumerationSummary(color.Error, total, asns, demo)
 // }
+
 
 // FprintEnumerationSummary outputs the summary information utilized by the command-line tools.
 func FprintEnumerationSummary(out io.Writer, total int, asns map[int]*ASNSummaryData, demo bool) {
@@ -135,7 +166,6 @@ func FprintEnumerationSummary(out io.Writer, total int, asns map[int]*ASNSummary
 	pad(8, "----------")
 	fmt.Fprintln(out)
 	// Print the ASN and netblock information
-	fmt.Println("[*] Called --> Print the ASN and netblock information")
 	for asn, data := range asns {
 		asnstr := strconv.Itoa(asn)
 		datastr := data.Name
@@ -161,65 +191,6 @@ func FprintEnumerationSummary(out io.Writer, total int, asns map[int]*ASNSummary
 	}
 }
 
-func FprintEnumerationSummaryOld(out io.Writer, total int, tags map[string]int, asns map[int]*ASNSummaryData, demo bool) {
-	pad := func(num int, chr string) {
-		for i := 0; i < num; i++ {
-			b.Fprint(out, chr)
-		}
-	}
-
-	fmt.Fprintln(out)
-	// Print the header information
-	title := "OWASP Amass "
-	site := "https://github.com/owasp-amass/amass"
-	b.Fprint(out, title+Version)
-	num := 80 - (len(title) + len(Version) + len(site))
-	pad(num, " ")
-	b.Fprintf(out, "%s\n", site)
-	pad(8, "----------")
-	fmt.Fprintf(out, "\n%s%s", yellow(strconv.Itoa(total)), green(" names discovered - "))
-	// Print the stats using tag information
-	num, length := 1, len(tags)
-	for k, v := range tags {
-		fmt.Fprintf(out, "%s: %s", green(k), yellow(strconv.Itoa(v)))
-		if num < length {
-			g.Fprint(out, ", ")
-		}
-		num++
-	}
-	fmt.Fprintln(out)
-
-	if len(asns) == 0 {
-		return
-	}
-	// Another line gets printed
-	pad(8, "----------")
-	fmt.Fprintln(out)
-	// Print the ASN and netblock information
-	for asn, data := range asns {
-		asnstr := strconv.Itoa(asn)
-		datastr := data.Name
-
-		if demo && asn > 0 {
-			asnstr = censorString(asnstr, 0, len(asnstr))
-			datastr = censorString(datastr, 0, len(datastr))
-		}
-		fmt.Fprintf(out, "%s%s %s %s\n", blue("ASN: "), yellow(asnstr), green("-"), green(datastr))
-
-		for cidr, ips := range data.Netblocks {
-			countstr := strconv.Itoa(ips)
-			cidrstr := cidr
-
-			if demo {
-				cidrstr = censorNetBlock(cidrstr)
-			}
-
-			countstr = fmt.Sprintf("\t%-4s", countstr)
-			cidrstr = fmt.Sprintf("\t%-18s", cidrstr)
-			fmt.Fprintf(out, "%s%s %s\n", yellow(cidrstr), yellow(countstr), blue("Subdomain Name(s)"))
-		}
-	}
-}
 
 // PrintBanner outputs the Amass banner to stderr.
 func PrintBanner() {
@@ -332,23 +303,6 @@ func DesiredAddrTypes(addrs []requests.AddressInfo, ipv4, ipv6 bool) []requests.
 	}
 
 	return kept
-}
-
-func DesiredAddrTypesOld(addrs []requests.AddressInfo, ipv4, ipv6 bool) []requests.AddressInfo {
-	if !ipv4 && !ipv6 {
-		return addrs
-	}
-
-	var keep []requests.AddressInfo
-	for _, addr := range addrs {
-		if amassnet.IsIPv4(addr.Address) && !ipv4 {
-			continue
-		} else if amassnet.IsIPv6(addr.Address) && !ipv6 {
-			continue
-		}
-		keep = append(keep, addr)
-	}
-	return keep
 }
 
 // InterfaceInfo returns network interface information specific to the current host.
