@@ -104,9 +104,9 @@ func PrintEnumerationSummary(total int, asns map[int]*ASNSummaryData, demo bool)
 	FprintEnumerationSummary(color.Error, total, asns, demo)
 }
 
-func PrintEnumerationSummaryOld(total int, tags map[string]int, asns map[int]*ASNSummaryData, demo bool) {
-	FprintEnumerationSummaryOld(color.Error, total, tags, asns, demo)
-}
+// func PrintEnumerationSummaryOld(total int, tags map[string]int, asns map[int]*ASNSummaryData, demo bool) {
+// 	FprintEnumerationSummaryOld(color.Error, total, tags, asns, demo)
+// }
 
 // FprintEnumerationSummary outputs the summary information utilized by the command-line tools.
 func FprintEnumerationSummary(out io.Writer, total int, asns map[int]*ASNSummaryData, demo bool) {
@@ -135,6 +135,7 @@ func FprintEnumerationSummary(out io.Writer, total int, asns map[int]*ASNSummary
 	pad(8, "----------")
 	fmt.Fprintln(out)
 	// Print the ASN and netblock information
+	fmt.Println("[*] Called --> Print the ASN and netblock information")
 	for asn, data := range asns {
 		asnstr := strconv.Itoa(asn)
 		datastr := data.Name

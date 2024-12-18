@@ -15,3 +15,7 @@
 
 # Jetbrains IDE configuration files
 .idea
+
+# Currrent new build
+amass
+.github

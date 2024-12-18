@@ -24,7 +24,7 @@ import (
 	"golang.org/x/net/publicsuffix"
 )
 
-func NewOutput(ctx context.Context, g *netmap.Graph, e *enum.Enumeration, filter *stringset.Set, since time.Time) []*requests.Output {
+func NewOutput(ctx context.Context, g *netmap.Graph, e *enum.Enumeration, filter *stringset.Set, since time.Time) []string {
 	var output []string
 
 	// Make sure a filter has been created
@@ -57,22 +57,14 @@ func NewOutput(ctx context.Context, g *netmap.Graph, e *enum.Enumeration, filter
 					output = append(output, fmt.Sprintf("%s %s %s %s %s", fromstr, arrow, magenta(rel.Type), arrow, tostr))
 					filter.Insert(lineid)
 
-					// Create a new Output object and append it to the slice
-					// output = append(output, &requests.Output{
-					// 	From:   fromstr,
-					// 	Arrow1: arrow,
-					// 	Type:   rel.Type,
-					// 	Arrow2: arrow,
-					// 	To:     tostr,
-					// })
 					filter.Insert(lineid)
 				}
 			}
 		}
 	}
-	var output1 []*requests.Output
 
-	return output1
+
+	return output
 }
 
 func extractAssetName(a *types.Asset) string {
@@ -105,16 +97,17 @@ func extractAssetName(a *types.Asset) string {
 }
 
 // ExtractOutput is a convenience method for obtaining new discoveries made by the enumeration process.
-func ExtractOutput(ctx context.Context, g *netmap.Graph, e *enum.Enumeration, filter *stringset.Set, asinfo bool) []*requests.Output {
+// func ExtractOutput(ctx context.Context, g *netmap.Graph, e *enum.Enumeration, filter *stringset.Set, asinfo bool) []*requests.Output {
+// 	return EventOutput(ctx, g, e.Config.Domains(), e.Config.CollectionStartTime, filter, asinfo, e.Sys.Cache())
+// }
+
+func ExtractOutput(ctx context.Context, g *netmap.Graph, e *enum.Enumeration, filter *stringset.Set, asinfo bool, limit int) []*requests.Output {
+	// if e.Config.Passive {
+	// 	return EventNames(ctx, g, e.Config.UUID.String(), filter)
+	// }
+	// return EventOutput(ctx, g, e.Config.UUID.String(), filter, asinfo, e.Sys.Cache(), limit)
 	return EventOutput(ctx, g, e.Config.Domains(), e.Config.CollectionStartTime, filter, asinfo, e.Sys.Cache())
 }
-
-// func ExtractOutput(ctx context.Context, g *netmap.Graph, e *enum.Enumeration, filter *stringset.Set, asinfo bool, limit int) []*requests.Output {
-// 	if e.Config.Passive {
-// 		return EventNames(ctx, g, e.Config.UUID.String(), filter)
-// 	}
-// 	return EventOutput(ctx, g, e.Config.UUID.String(), filter, asinfo, e.Sys.Cache(), limit)
-// }
 
 
 type outLookup map[string]*requests.Output
