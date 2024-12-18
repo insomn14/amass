@@ -76,9 +76,7 @@ func PrintEnumerationSummary(records []string) {
 		// Check if the record is an ASN
 		if strings.HasSuffix(left, "(ASN)") {
 			asnID := left[:len(left)-len(" (ASN)")]
-			// fmt.Printf("[!] Parts: %s\n", asnID)
 			asnDetails := strings.Split(value, " ")
-			// fmt.Printf("[!] Parts: %s\n", asnDetails)
 			if len(asnDetails) >= 2 {
 				asns[asnID] = map[string]string{
 					"organization": strings.Join(asnDetails[1:], " "),
