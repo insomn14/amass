@@ -60,7 +60,7 @@ type ASNSummaryData struct {
 func PrintEnumerationSummary(total int, records []string) {
 	// Maps to hold the summarized data
 	asns := make(map[string]map[string]interface{}) // ASN -> (organization, netblocks, FQDNs)
-	fqdns := make(map[string]string)                 // FQDN -> IP
+	fqdns := make(map[string]string)                // FQDN -> IP
 
 	// Parse the records
 	for _, record := range records {
@@ -89,9 +89,9 @@ func PrintEnumerationSummary(total int, records []string) {
 					"fqdns":        []string{},
 				}
 			}
-		} else if strings.HasSuffix(left, "(FQDN)") || strings.HasSuffix(left, "(IPAddress)") {
+		} else if strings.HasSuffix(left, "(FQDN)") {
 			// If it's a FQDN or IP address, store it
-			if strings.HasSuffix(left, "(FQDN)") {
+			if strings.HasSuffix(left, "(FQDN)") && strings.HasSuffix(value, "(IPAddress)") {
 				fqdns[left] = value
 				// Associate FQDN with the ASN
 				for asnID := range asns {
@@ -99,10 +99,9 @@ func PrintEnumerationSummary(total int, records []string) {
 				}
 			} else {
 				fqdns[left] = value
-			}
-		}
+			} 
+		} 
 	}
-
 
 	pad := func(num int, chr string) {
 		for i := 0; i < num; i++ {
@@ -120,7 +119,7 @@ func PrintEnumerationSummary(total int, records []string) {
 	pad(num, " ")
 	b.Fprintf(color.Error, "%s\n", site)
 	pad(8, "----------")
-	fmt.Fprintf(color.Error, "\n%s%s", yellow(strconv.Itoa(total)), green(" names discovered"))
+	fmt.Fprintf(color.Error, "\n%s%s", yellow(strconv.Itoa(total)), green(" records discovered"))
 	fmt.Fprintln(color.Error)
 
 	if len(asns) == 0 {
@@ -135,13 +134,18 @@ func PrintEnumerationSummary(total int, records []string) {
 		// Print ASN details
 		netblocks := strings.Join(details["netblocks"].([]string), ", ")
 		org := details["organization"]
-		fmt.Printf("ASN: %s - %s - %s\n", asnID, org, netblocks)
+		fmt.Fprintf(color.Error, "%s%s - %s \n\t %s\t %s  %s", blue("ASN: "), yellow(asnID), green(org), yellow(netblocks), yellow(strconv.Itoa(len(fqdns))), blue("Subdomain Name(s)"))
 		for fqdn, ip := range fqdns {
-			if strings.HasSuffix(fqdn, "(FQDN)") && strings.HasSuffix(ip, "(IPAddress)") {
-				fmt.Printf(" - %s --> %s\n", strings.TrimSuffix(fqdn, " (FQDN)"), strings.TrimSuffix(ip, " (IPAddress)"))
+			if strings.HasSuffix(ip, "(FQDN)") {
+				// Clean FQDN -> FQDN to FQDN -> IPAddress
+				tmp_ip := fqdns[ip]
+				fmt.Fprintf(color.Error, "\n%s --> %s", green(strings.TrimSuffix(fqdn, " (FQDN)")), yellow(strings.TrimSuffix(tmp_ip, " (IPAddress)")))
+			} else {
+				fmt.Fprintf(color.Error, "\n%s --> %s", green(strings.TrimSuffix(fqdn, " (FQDN)")), yellow(strings.TrimSuffix(ip, " (IPAddress)")))
 			}
 		}
 	}
+	fmt.Println("")
 }
 
 // UpdateSummaryData updates the summary maps using the provided requests.Output data.
