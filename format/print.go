@@ -134,7 +134,7 @@ func PrintEnumerationSummary(total int, records []string) {
 		// Print ASN details
 		netblocks := strings.Join(details["netblocks"].([]string), ", ")
 		org := details["organization"]
-		fmt.Fprintf(color.Error, "%s%s - %s \n\t %s\t %s  %s", blue("ASN: "), yellow(asnID), green(org), yellow(netblocks), yellow(strconv.Itoa(len(fqdns))), blue("Subdomain Name(s)"))
+		fmt.Fprintf(color.Error, "\n%s%s - %s \n\t %s\t %s  %s", blue("ASN: "), yellow(asnID), green(org), yellow(netblocks), yellow(strconv.Itoa(len(fqdns))), blue("Subdomain Name(s)"))
 		for fqdn, ip := range fqdns {
 			if strings.HasSuffix(ip, "(FQDN)") {
 				// Clean FQDN -> FQDN to FQDN -> IPAddress
@@ -145,7 +145,6 @@ func PrintEnumerationSummary(total int, records []string) {
 			}
 		}
 	}
-	fmt.Println("")
 }
 
 // UpdateSummaryData updates the summary maps using the provided requests.Output data.

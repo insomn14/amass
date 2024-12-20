@@ -120,37 +120,16 @@ func defineEnumArgumentFlags(enumFlags *flag.FlagSet, args *enumArgs) {
 	enumFlags.IntVar(&args.Timeout, "timeout", 0, "Number of minutes to let enumeration run before quitting")
 }
 
-// func defineEnumOptionFlags(enumFlags *flag.FlagSet, args *enumArgs) {
-// 	enumFlags.BoolVar(&args.Options.Active, "active", false, "Attempt zone transfers and certificate name grabs")
-// 	enumFlags.BoolVar(&args.Options.BruteForcing, "brute", false, "Execute brute forcing after searches")
-// 	enumFlags.BoolVar(&args.Options.DemoMode, "demo", false, "Censor output to make it suitable for demonstrations")
-// 	enumFlags.BoolVar(&args.Options.ListSources, "list", false, "Print the names of all available data sources")
-// 	enumFlags.BoolVar(&args.Options.Alterations, "alts", false, "Enable generation of altered names")
-// 	enumFlags.BoolVar(&args.Options.NoColor, "nocolor", false, "Disable colorized output")
-// 	enumFlags.BoolVar(&args.Options.NoRecursive, "norecursive", false, "Turn off recursive brute forcing")
-// 	enumFlags.BoolVar(&args.Options.Passive, "passive", false, "Deprecated since passive is the default setting")
-// 	enumFlags.BoolVar(&args.Options.Silent, "silent", false, "Disable all output during execution")
-// 	enumFlags.BoolVar(&args.Options.Verbose, "v", false, "Output status / debug / troubleshooting info")
-// }
-
 func defineEnumOptionFlags(enumFlags *flag.FlagSet, args *enumArgs) {
-	var placeholder bool
 	enumFlags.BoolVar(&args.Options.Active, "active", false, "Attempt zone transfers and certificate name grabs")
 	enumFlags.BoolVar(&args.Options.BruteForcing, "brute", false, "Execute brute forcing after searches")
 	enumFlags.BoolVar(&args.Options.DemoMode, "demo", false, "Censor output to make it suitable for demonstrations")
-	enumFlags.BoolVar(&args.Options.IPs, "ip", false, "Show the IP addresses for discovered names")
-	enumFlags.BoolVar(&args.Options.IPv4, "ipv4", false, "Show the IPv4 addresses for discovered names")
-	enumFlags.BoolVar(&args.Options.IPv6, "ipv6", false, "Show the IPv6 addresses for discovered names")
 	enumFlags.BoolVar(&args.Options.ListSources, "list", false, "Print the names of all available data sources")
 	enumFlags.BoolVar(&args.Options.Alterations, "alts", false, "Enable generation of altered names")
-	enumFlags.BoolVar(&args.Options.NoAlts, "noalts", true, "Deprecated flag to be removed in version 4.0")
 	enumFlags.BoolVar(&args.Options.NoColor, "nocolor", false, "Disable colorized output")
-	enumFlags.BoolVar(&placeholder, "nolocaldb", false, "Deprecated feature to be removed in version 4.0")
 	enumFlags.BoolVar(&args.Options.NoRecursive, "norecursive", false, "Turn off recursive brute forcing")
-	enumFlags.BoolVar(&args.Options.Passive, "passive", false, "Disable DNS resolution of names and dependent features")
-	enumFlags.BoolVar(&placeholder, "share", false, "Deprecated feature to be removed in version 4.0")
+	enumFlags.BoolVar(&args.Options.Passive, "passive", false, "Deprecated since passive is the default setting")
 	enumFlags.BoolVar(&args.Options.Silent, "silent", false, "Disable all output during execution")
-	enumFlags.BoolVar(&args.Options.Sources, "src", false, "Print data sources for the discovered names")
 	enumFlags.BoolVar(&args.Options.Verbose, "v", false, "Output status / debug / troubleshooting info")
 }
 
