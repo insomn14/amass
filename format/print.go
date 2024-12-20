@@ -59,8 +59,8 @@ type ASNSummaryData struct {
 
 func PrintEnumerationSummary(records []string) {
 	// Maps to hold the summarized data
-	asns := make(map[string]map[string]string) // ASN -> (FQDN/IP -> Type)
-	fqdns := make(map[string]string)             // FQDN -> IP
+	asns := make(map[string]map[string]interface{}) // ASN -> (organization, netblocks, FQDNs)
+	fqdns := make(map[string]string)                 // FQDN -> IP
 
 	// Parse the records
 	for _, record := range records {
@@ -70,28 +70,35 @@ func PrintEnumerationSummary(records []string) {
 		}
 
 		left := strings.TrimSpace(parts[0])
-		// right := strings.TrimSpace(parts[1])
 		value := strings.TrimSpace(parts[2])
+
+		// fmt.Printf("[!] VALUE: %s = %t- LEFT: %s\n", value, strings.HasSuffix(value, "(Netblock)"), left)
 
 		// Check if the record is an ASN
 		if strings.HasSuffix(left, "(ASN)") {
 			asnID := left[:len(left)-len(" (ASN)")]
 			asnDetails := strings.Split(value, " ")
-			if len(asnDetails) >= 2 {
-				asns[asnID] = map[string]string{
-					"organization": strings.Join(asnDetails[1:], " "),
-					"netblocks":    "",
+			if len(asnDetails) >= 2 && strings.HasSuffix(value, "(RIROrganization)") {
+				asns[asnID] = map[string]interface{}{
+					"organization": strings.TrimSuffix(value, " (RIROrganization)"),
+					"netblocks":    []string{},
+					"fqdns":        []string{},
 				}
 			}
-		} else if strings.HasSuffix(left, "(Netblock)") {
+		} else if strings.HasSuffix(value, "(Netblock)") {
 			// If it's a netblock, associate it with the ASN
+			fmt.Printf("[!] VALUE: %s = %t- LEFT: %s\n", value, strings.HasSuffix(value, "(Netblock)"), left)
 			for asnID := range asns {
-				asns[asnID]["netblocks"] += left + " "
+				asns[asnID]["netblocks"] = append(asns[asnID]["netblocks"].([]string), value)
 			}
 		} else if strings.HasSuffix(left, "(FQDN)") || strings.HasSuffix(left, "(IPAddress)") {
 			// If it's a FQDN or IP address, store it
 			if strings.HasSuffix(left, "(FQDN)") {
 				fqdns[left] = value
+				// Associate FQDN with the ASN
+				for asnID := range asns {
+					asns[asnID]["fqdns"] = append(asns[asnID]["fqdns"].([]string), left)
+				}
 			} else {
 				fqdns[left] = value
 			}
@@ -100,12 +107,16 @@ func PrintEnumerationSummary(records []string) {
 
 	// Print the summary
 	for asnID, details := range asns {
-		fmt.Printf("ASN: %s - %s %s\n", asnID, details["organization"], details["netblocks"])
-		for fqdn, ip := range fqdns {
+		// Print ASN details
+		netblocks := strings.Join(details["netblocks"].([]string), ", ")
+		org := details["organization"]
+		fmt.Printf("ASN: %s - %s - %s\n", asnID, org, netblocks)
+
+		// Print associated FQDNs
+		for _, fqdn := range details["fqdns"].([]string) {
 			if strings.HasSuffix(fqdn, "(FQDN)") {
-				fmt.Printf(" - %s: %s\n", strings.TrimSuffix(fqdn, " (FQDN)"), ip)
-			} else {
-				fmt.Printf(" - %s: %s\n", fqdn, ip)
+				// Print only FQDNs
+				fmt.Printf(" - %s: %s\n", strings.TrimSuffix(fqdn, " (FQDN)"), fqdns[fqdn])
 			}
 		}
 	}
