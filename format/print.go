@@ -111,12 +111,9 @@ func PrintEnumerationSummary(records []string) {
 		netblocks := strings.Join(details["netblocks"].([]string), ", ")
 		org := details["organization"]
 		fmt.Printf("ASN: %s - %s - %s\n", asnID, org, netblocks)
-
-		// Print associated FQDNs
-		for _, fqdn := range details["fqdns"].([]string) {
-			if strings.HasSuffix(fqdn, "(FQDN)") {
-				// Print only FQDNs
-				fmt.Printf(" - %s: %s\n", strings.TrimSuffix(fqdn, " (FQDN)"), fqdns[fqdn])
+		for fqdn, ip := range fqdns {
+			if strings.HasSuffix(fqdn, "(FQDN)") && strings.HasSuffix(ip, "(IPAddress)") {
+				fmt.Printf(" - %s: %s\n", strings.TrimSuffix(fqdn, " (FQDN)"), strings.TrimSuffix(ip, " (IPAddress)"))
 			}
 		}
 	}
