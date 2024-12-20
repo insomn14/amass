@@ -31,7 +31,7 @@ const Banner = `        .+++:.            :                             .+++.
 
 const (
 	// Version is used to display the current version of Amass.
-	Version = "v4.2.0"
+	Version = "v4.2.1"
 
 	// Author is used to display the Amass Project Team.
 	Author = "OWASP Amass Project - @owaspamass"
@@ -57,7 +57,7 @@ type ASNSummaryData struct {
 	Netblocks map[string]int
 }
 
-func PrintEnumerationSummary(records []string) {
+func PrintEnumerationSummary(total int, records []string) {
 	// Maps to hold the summarized data
 	asns := make(map[string]map[string]interface{}) // ASN -> (organization, netblocks, FQDNs)
 	fqdns := make(map[string]string)                 // FQDN -> IP
@@ -72,10 +72,14 @@ func PrintEnumerationSummary(records []string) {
 		left := strings.TrimSpace(parts[0])
 		value := strings.TrimSpace(parts[2])
 
-		// fmt.Printf("[!] VALUE: %s = %t- LEFT: %s\n", value, strings.HasSuffix(value, "(Netblock)"), left)
-
 		// Check if the record is an ASN
-		if strings.HasSuffix(left, "(ASN)") {
+		if strings.HasSuffix(value, " (Netblock)") {
+			// If it's a netblock, associate it with the ASN
+			ntblocks := strings.TrimSuffix(value, " (Netblock)")
+			for asnID := range asns {
+				asns[asnID]["netblocks"] = append(asns[asnID]["netblocks"].([]string), ntblocks)
+			}
+		} else if strings.HasSuffix(left, "(ASN)") {
 			asnID := left[:len(left)-len(" (ASN)")]
 			asnDetails := strings.Split(value, " ")
 			if len(asnDetails) >= 2 && strings.HasSuffix(value, "(RIROrganization)") {
@@ -84,12 +88,6 @@ func PrintEnumerationSummary(records []string) {
 					"netblocks":    []string{},
 					"fqdns":        []string{},
 				}
-			}
-		} else if strings.HasSuffix(value, "(Netblock)") {
-			// If it's a netblock, associate it with the ASN
-			fmt.Printf("[!] VALUE: %s = %t- LEFT: %s\n", value, strings.HasSuffix(value, "(Netblock)"), left)
-			for asnID := range asns {
-				asns[asnID]["netblocks"] = append(asns[asnID]["netblocks"].([]string), value)
 			}
 		} else if strings.HasSuffix(left, "(FQDN)") || strings.HasSuffix(left, "(IPAddress)") {
 			// If it's a FQDN or IP address, store it
@@ -105,6 +103,33 @@ func PrintEnumerationSummary(records []string) {
 		}
 	}
 
+
+	pad := func(num int, chr string) {
+		for i := 0; i < num; i++ {
+			b.Fprint(color.Error, chr)
+		}
+	}
+
+
+	fmt.Fprintln(color.Error)
+	// Print the header information
+	title := "OWASP Amass "
+	site := "https://github.com/insomn14/amass"
+	b.Fprint(color.Error, title+Version)
+	num := 80 - (len(title) + len(Version) + len(site))
+	pad(num, " ")
+	b.Fprintf(color.Error, "%s\n", site)
+	pad(8, "----------")
+	fmt.Fprintf(color.Error, "\n%s%s", yellow(strconv.Itoa(total)), green(" names discovered"))
+	fmt.Fprintln(color.Error)
+
+	if len(asns) == 0 {
+		return
+	}
+	// Another line gets printed
+	pad(8, "----------")
+	fmt.Fprintln(color.Error)
+
 	// Print the summary
 	for asnID, details := range asns {
 		// Print ASN details
@@ -113,7 +138,7 @@ func PrintEnumerationSummary(records []string) {
 		fmt.Printf("ASN: %s - %s - %s\n", asnID, org, netblocks)
 		for fqdn, ip := range fqdns {
 			if strings.HasSuffix(fqdn, "(FQDN)") && strings.HasSuffix(ip, "(IPAddress)") {
-				fmt.Printf(" - %s: %s\n", strings.TrimSuffix(fqdn, " (FQDN)"), strings.TrimSuffix(ip, " (IPAddress)"))
+				fmt.Printf(" - %s --> %s\n", strings.TrimSuffix(fqdn, " (FQDN)"), strings.TrimSuffix(ip, " (IPAddress)"))
 			}
 		}
 	}

@@ -404,7 +404,7 @@ func printOutput(e *enum.Enumeration, args *enumArgs, output chan string, wg *sy
 	if total == 0 {
 		r.Println("No assets were discovered")
 	} else if !args.Options.Passive {
-		format.PrintEnumerationSummary(records)
+		format.PrintEnumerationSummary(total, records)
 	}
 }
 
