@@ -387,7 +387,6 @@ func stripANSI(s string) string {
 func printOutput(e *enum.Enumeration, args *enumArgs, output chan string, wg *sync.WaitGroup) {
 	defer wg.Done()
 
-	// fmt.Println("[*] Called --> printOutput()")
 	var total int
 	var records []string
 
