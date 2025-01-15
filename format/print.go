@@ -8,8 +8,10 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"os"
 	"strconv"
 	"strings"
+	"time"
 	"github.com/fatih/color"
 	amassnet "github.com/insomn14/amass/net"
 	"github.com/insomn14/amass/requests"
@@ -57,7 +59,7 @@ type ASNSummaryData struct {
 	Netblocks map[string]int
 }
 
-func PrintEnumerationSummary(total int, records []string) {
+func PrintEnumerationSummary(total int, records []string, target string) {
 	// Maps to hold the summarized data
 	asns := make(map[string]map[string]interface{}) // ASN -> (organization, netblocks, FQDNs)
 	fqdns := make(map[string]string)                // FQDN -> IP
@@ -103,48 +105,117 @@ func PrintEnumerationSummary(total int, records []string) {
 		} 
 	}
 
-	pad := func(num int, chr string) {
-		for i := 0; i < num; i++ {
-			b.Fprint(color.Error, chr)
-		}
-	}
+	// pad := func(num int, chr string) {
+	// 	for i := 0; i < num; i++ {
+	// 		b.Fprint(color.Error, chr)
+	// 	}
+	// }
 
+	// fmt.Fprintln(color.Error)
+	// // Print the header information
+	// title := "OWASP Amass "
+	// site := "https://github.com/insomn14/amass"
+	// b.Fprint(color.Error, title+Version)
+	// num := 80 - (len(title) + len(Version) + len(site))
+	// pad(num, " ")
+	// b.Fprintf(color.Error, "%s\n", site)
+	// pad(8, "----------")
+	// fmt.Fprintf(color.Error, "\n%s%s", yellow(strconv.Itoa(total)), green(" records discovered"))
+	// fmt.Fprintln(color.Error)
 
-	fmt.Fprintln(color.Error)
-	// Print the header information
-	title := "OWASP Amass "
-	site := "https://github.com/insomn14/amass"
-	b.Fprint(color.Error, title+Version)
-	num := 80 - (len(title) + len(Version) + len(site))
-	pad(num, " ")
-	b.Fprintf(color.Error, "%s\n", site)
-	pad(8, "----------")
-	fmt.Fprintf(color.Error, "\n%s%s", yellow(strconv.Itoa(total)), green(" records discovered"))
-	fmt.Fprintln(color.Error)
-
-	if len(asns) == 0 {
-		return
-	}
-	// Another line gets printed
-	pad(8, "----------")
-	fmt.Fprintln(color.Error)
+	// if len(asns) == 0 {
+	// 	return
+	// }
+	// // Another line gets printed
+	// pad(8, "----------")
+	// fmt.Fprintln(color.Error)
 
 	// Print the summary
+	// for asnID, details := range asns {
+	// 	// Print ASN details
+	// 	netblocks := strings.Join(details["netblocks"].([]string), ", ")
+	// 	org := details["organization"]
+	// 	fmt.Fprintf(color.Error, "\n%s%s - %s \n\t %s\t %s  %s\n", blue("ASN: "), yellow(asnID), green(org), yellow(netblocks), yellow(strconv.Itoa(len(fqdns))), blue("Subdomain Name(s)"))
+	// 	for fqdn, ip := range fqdns {
+	// 		if strings.HasSuffix(ip, "(FQDN)") {
+	// 			// Clean FQDN -> FQDN to FQDN -> IPAddress
+	// 			tmp_ip := fqdns[ip]
+	// 			fmt.Fprintf(color.Error, "\n%s --> %s", green(strings.TrimSuffix(fqdn, " (FQDN)")), yellow(strings.TrimSuffix(tmp_ip, " (IPAddress)")))
+	// 		} else {
+	// 			fmt.Fprintf(color.Error, "\n%s --> %s", green(strings.TrimSuffix(fqdn, " (FQDN)")), yellow(strings.TrimSuffix(ip, " (IPAddress)")))
+	// 		}
+	// 	}
+	// }
+	// PrintASNDetails(asns, fqdns)
+
+	// Generate dynamic filename with current date
+	currentDate := time.Now().Format("2006-01-02")
+	filename := fmt.Sprintf("%s_%s.txt", target, currentDate)
+	if err := SaveASNDetailsToFile(filename, asns, fqdns); err != nil {
+		color.Red("\n[!] Error saving file: %v", err)
+	} else {
+		color.Green("\n[+] Details saved to %s", filename)
+	}
+}
+
+// PrintASNDetails prints ASN details to the console
+func PrintASNDetails(asns map[string]map[string]interface{}, fqdns map[string]string) {
 	for asnID, details := range asns {
 		// Print ASN details
+		org := details["organization"].(string)
 		netblocks := strings.Join(details["netblocks"].([]string), ", ")
-		org := details["organization"]
-		fmt.Fprintf(color.Error, "\n%s%s - %s \n\t %s\t %s  %s", blue("ASN: "), yellow(asnID), green(org), yellow(netblocks), yellow(strconv.Itoa(len(fqdns))), blue("Subdomain Name(s)"))
+		fmt.Fprintf(color.Error, "\n%s%s - %s\n\t%s%s\t%s%s\n",
+			color.BlueString("ASN: "), color.YellowString(asnID), color.GreenString(org),
+			color.YellowString(netblocks), color.YellowString(strconv.Itoa(len(fqdns))), color.BlueString(" Subdomain Name(s)"))
+
+		// Print FQDNs and associated IPs
 		for fqdn, ip := range fqdns {
 			if strings.HasSuffix(ip, "(FQDN)") {
-				// Clean FQDN -> FQDN to FQDN -> IPAddress
-				tmp_ip := fqdns[ip]
-				fmt.Fprintf(color.Error, "\n%s --> %s", green(strings.TrimSuffix(fqdn, " (FQDN)")), yellow(strings.TrimSuffix(tmp_ip, " (IPAddress)")))
+				tmpIP := fqdns[ip]
+				fmt.Fprintf(color.Error, "\n%s --> %s",
+					color.GreenString(strings.TrimSuffix(fqdn, " (FQDN)")),
+					color.YellowString(strings.TrimSuffix(tmpIP, " (IPAddress)")))
 			} else {
-				fmt.Fprintf(color.Error, "\n%s --> %s", green(strings.TrimSuffix(fqdn, " (FQDN)")), yellow(strings.TrimSuffix(ip, " (IPAddress)")))
+				fmt.Fprintf(color.Error, "\n%s --> %s",
+					color.GreenString(strings.TrimSuffix(fqdn, " (FQDN)")),
+					color.YellowString(strings.TrimSuffix(ip, " (IPAddress)")))
 			}
 		}
 	}
+	fmt.Fprintln(color.Error)
+}
+
+func SaveASNDetailsToFile(filename string, asns map[string]map[string]interface{}, fqdns map[string]string) error {
+	file, err := os.Create(filename)
+	if err != nil {
+		return fmt.Errorf("failed to create file: %v", err)
+	}
+	defer file.Close()
+
+	for asnID, details := range asns {
+		// Write ASN details
+		org := details["organization"].(string)
+		netblocks := strings.Join(details["netblocks"].([]string), ", ")
+		_, err := file.WriteString(fmt.Sprintf("ASN: %s - %s\n\tNetblocks: %s\n\tSubdomains: %d\n", asnID, org, netblocks, len(fqdns)))
+		if err != nil {
+			return fmt.Errorf("failed to write ASN details: %v", err)
+		}
+
+		// Write FQDNs and associated IPs
+		for fqdn, ip := range fqdns {
+			var line string
+			if strings.HasSuffix(ip, "(FQDN)") {
+				tmpIP := fqdns[ip]
+				line = fmt.Sprintf("%s: %s\n", strings.TrimSuffix(fqdn, " (FQDN)"), strings.TrimSuffix(tmpIP, " (IPAddress)"))
+			} else {
+				line = fmt.Sprintf("%s: %s\n", strings.TrimSuffix(fqdn, " (FQDN)"), strings.TrimSuffix(ip, " (IPAddress)"))
+			}
+			if _, err := file.WriteString(line); err != nil {
+				return fmt.Errorf("failed to write FQDN details: %v", err)
+			}
+		}
+	}
+	return nil
 }
 
 // UpdateSummaryData updates the summary maps using the provided requests.Output data.
